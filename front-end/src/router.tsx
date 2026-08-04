@@ -3,6 +3,8 @@ import Login from "./pages/login.tsx";
 import Register from "./pages/Register.tsx";
 import Home from "./pages/Home.tsx";
 import Header from "./components/header.tsx";
+import Pedidos from "./pages/Pedidos.tsx";
+import PublicRoute from "./components/PublicRoute.tsx";
 
 const Layout = () => {
   return (
@@ -21,21 +23,27 @@ const router = createBrowserRouter([
         path: "/",
         element: <Home />,
       },
+      {
+        path: "/pedidos",
+        element: <Pedidos />,
+      },
     ],
   },
-
-  {
-    path: "/",
-    element: <Home />,
-  },
-
   {
     path: "/login",
-    element: <Login />,
+    element: (
+      <PublicRoute>
+        <Login />
+      </PublicRoute>
+    ),
   },
   {
     path: "/register",
-    element: <Register />,
+    element: (
+      <PublicRoute>
+        <Register />
+      </PublicRoute>
+    ),
   },
 ]);
 

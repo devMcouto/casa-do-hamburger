@@ -2,15 +2,65 @@ import Input from "../components/input.tsx";
 import { useState } from "react";
 import { Link } from "react-router";
 import Button from "../components/Button.tsx";
+import { useNavigate } from "react-router";
+import { useContext } from "react";
+import { UserContext } from "../contexts/UserContext.tsx";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const { setUser } = useContext(UserContext);
 
-  function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+  const navigate = useNavigate();
+
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    console.log(email);
-    console.log(password);
+    try {
+      if (!email || !password) {
+        setError("Email e senha são obrigatórios");
+        return;
+      }
+      const response = await fetch("http://localhost:3000/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+        credentials: "include",
+      });
+
+      if (response.status === 400) {
+        setError("Usuário ou senha inválidos");
+        return;
+      }
+
+      if (response.status === 401) {
+        setError("Credenciais inválidas");
+        return;
+      }
+
+      if (response.status === 404) {
+        setError("Usuário não encontrado");
+        return;
+      }
+
+      if (response.status === 500) {
+        setError("Error no servidor");
+        return;
+      }
+
+      if (response.status === 200) {
+        setError("");
+        const data = await response.json();
+        navigate("/");
+        setUser(data);
+        console.log(data);
+      }
+    } catch (error) {
+      console.log(error);
+      return;
+    }
   }
 
   return (
@@ -18,20 +68,24 @@ const Login = () => {
       className="flex h-screen items-center justify-center bg-[#161410]"
       onSubmit={onSubmit}
     >
-      <div className="flex flex-col items-center justify-center gap-2">
+      <div className="flex flex-col justify-center gap-2">
         <Link to="/">
-          <img src="./logo.png" alt="logo" className="mb-4" />
+          <img src="./logo.png" alt="logo" className="mx-auto mb-4" />
         </Link>
-        <Input
-          placeholder="E-mail"
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <Input
-          placeholder="Senha"
-          type="password"
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <Button title="Login" variant="default" />
+        <div className="mb-3 flex flex-col gap-2">
+          <Input
+            placeholder="E-mail"
+            onChange={(e) => setEmail(e.target.value)}
+            type="email"
+          />
+          <Input
+            placeholder="Senha"
+            type="password"
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <p className="text-left text-sm font-bold text-red-500">{error}</p>
+        </div>
+        <Button title="Login" variant="default" type="submit" />
         <Link to="/register" className="w-full">
           <Button title="Não tenho uma conta" variant="outline" />
         </Link>
