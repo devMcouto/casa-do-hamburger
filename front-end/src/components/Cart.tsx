@@ -49,6 +49,7 @@ const Cart = ({ setShowCart, showCart }: CartTypeProps) => {
             title={item.product.name}
             price={item.product.price}
             img={item.product.img}
+            quantity={item.quantity}
             id={item.product.id}
           />
         ))}

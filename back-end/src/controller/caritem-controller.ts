@@ -50,5 +50,6 @@ export async function createCartItem(req: Request, res: Response) {
     res.status(statusCode).json(cartItem);
   } catch (error) {
     res.status(500).json({ message: "Erro ao adicionar item no carrinho" });
+    return;
   }
 }

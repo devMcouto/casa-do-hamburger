@@ -8,7 +8,7 @@ import { CartItemsContext } from "../contexts/CartItemsContext.tsx";
 const Header = () => {
   const [showCart, setShowCart] = useState<boolean>(false);
   const { user, setUser } = useContext(UserContext);
-  const { cartItems } = useContext(CartItemsContext);
+  const { cartItems, setCartItems } = useContext(CartItemsContext);
   const location = useLocation();
 
   const handleAuthUser = async () => {
@@ -41,8 +41,30 @@ const Header = () => {
       console.error("Error logging out:", error);
     }
   };
+
+  const getCartItems = async () => {
+    try {
+      const response = await fetch("http://localhost:3000/get-cart-items", {
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        console.log("Erro ao realizar a requisição");
+        return;
+      }
+
+      const data = await response.json();
+
+      setCartItems(data);
+    } catch (error) {
+      console.log("error");
+      return;
+    }
+  };
+
   useEffect(() => {
     handleAuthUser();
+    getCartItems();
   }, [location.pathname]);
 
   const getNavItemClass = (path: string) => {
@@ -54,6 +76,12 @@ const Header = () => {
       return baseClass;
     }
   };
+
+  let cartQuantity = 0;
+  for (let i = 0; i < cartItems.length; i++) {
+    cartQuantity += cartItems[i].quantity;
+  }
+
   return (
     <div className="bg-[#161410]">
       {showCart && <Cart setShowCart={setShowCart} showCart={showCart} />}
@@ -83,7 +111,7 @@ const Header = () => {
             <div className="relative cursor-pointer">
               <ShoppingCart size={20} onClick={() => setShowCart(!showCart)} />
               <p className="absolute -top-4 -right-4 flex h-5 w-5 items-center justify-center rounded-full bg-[#F2DAAC] text-[#161410]">
-                {cartItems.length}
+                {cartQuantity}
               </p>
             </div>
             <div className="flex items-center gap-2">

@@ -4,6 +4,7 @@ export type CartItemType = {
   id: string;
   userId: string;
   productId: string;
+  quantity: number;
   product: ProductType;
 };
 

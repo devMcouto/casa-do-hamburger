@@ -3,6 +3,7 @@ import type { ProductType } from "../types/Product";
 import { formatterPrice } from "../utils/formatterPrice";
 import { UserContext } from "../contexts/UserContext";
 import { useContext } from "react";
+import { CartItemsContext } from "../contexts/CartItemsContext";
 
 const Product = ({
   id,
@@ -13,6 +14,7 @@ const Product = ({
   category,
 }: ProductType) => {
   const { user } = useContext(UserContext);
+  const { cartItems, setCartItems } = useContext(CartItemsContext);
 
   const handleDeleteProduct = async (id: string) => {
     try {
@@ -27,6 +29,47 @@ const Product = ({
           credentials: "include",
         },
       );
+    } catch (error) {
+      console.log(error);
+      return;
+    }
+  };
+
+  const getCartItems = async () => {
+    try {
+      const response = await fetch("http://localhost:3000/get-cart-items", {
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        console.log("Erro ao realizar a requisição");
+        return;
+      }
+
+      const data = await response.json();
+
+      setCartItems(data);
+    } catch (error) {
+      console.log("error");
+      return;
+    }
+  };
+
+  const newCartItem = async () => {
+    try {
+      const response = await fetch("http://localhost:3000/create-cart-item", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ productId: id }),
+      });
+
+      if (!response.ok) {
+        console.log("deu ruim");
+        return;
+      }
+
+      getCartItems();
     } catch (error) {
       console.log(error);
       return;
@@ -61,7 +104,7 @@ const Product = ({
             <ShoppingBag
               size={18}
               className="cursor-pointer"
-              onClick={() => alert(id)}
+              onClick={() => newCartItem()}
             />
           </div>
         </div>
