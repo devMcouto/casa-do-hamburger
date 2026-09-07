@@ -6,6 +6,7 @@ import {
   getCartItems,
   createCartItem,
 } from "./controller/caritem-controller.js";
+import { createOrder } from "./controller/order-controller.js";
 export const router = Router();
 
 // Rotas de usuário
@@ -22,3 +23,6 @@ router.delete("/delete-product/:id", authMiddleware, deleteProduct);
 //Cart
 router.get("/get-cart-items", authMiddleware, getCartItems);
 router.post("/create-cart-item", authMiddleware, createCartItem);
+
+//Orders
+router.post("/create-order", authMiddleware, createOrder);

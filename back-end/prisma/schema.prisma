@@ -15,6 +15,7 @@ model User {
   cep String
   admin Boolean @default(false)
   cartItems CartItem[]
+  order Order[]
 }
 
 model Product {
@@ -27,6 +28,7 @@ model Product {
   createdAt DateTime @default(now())
 
   cartItems CartItem[]
+  orderItems OrderItem[]
 }
 
 model CartItem {
@@ -40,3 +42,30 @@ model CartItem {
   user User @relation(fields: [userId],references: [id])
 }
 
+
+model Order {
+  id String @id @default(uuid())
+  status String @default("Pendente")
+  total Int 
+  createdAt DateTime @default(now())
+
+  userId String
+  user User @relation(fields:[userId],references: [id])
+
+  Items OrderItem []
+
+}
+
+
+model OrderItem {
+  id String @id @default(uuid())
+  quantity Int 
+  price Int
+  
+  productId String
+  product Product @relation(fields: [productId],references: [id])
+
+  orderId String
+  order Order @relation(fields: [orderId],references: [id])
+
+}
