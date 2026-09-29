@@ -13,6 +13,33 @@ const Cart = ({ setShowCart, showCart }: CartTypeProps) => {
   // const [cartItems, setCartItems] = useState<CartItemType[]>([]);
   const { cartItems, setCartItems } = useContext(CartItemsContext);
 
+  async function handleCreateOrder() {
+    try {
+      const response = await fetch("http://localhost:3000/create-order", {
+        method: "POST",
+        credentials: "include",
+      });
+
+      if (cartItems.length === 0) {
+        console.log("Carrinho vazio");
+        return;
+      }
+
+      if (!response.ok) {
+        console.log("Error ao finalizar o pedido");
+        return;
+      }
+
+      setCartItems([]);
+      setShowCart(false);
+
+      console.log("Pedido realizado com sucesso!");
+    } catch (err) {
+      console.log(err);
+      return;
+    }
+  }
+
   const getCartItems = async () => {
     try {
       const response = await fetch("http://localhost:3000/get-cart-items", {
@@ -54,7 +81,7 @@ const Cart = ({ setShowCart, showCart }: CartTypeProps) => {
           />
         ))}
       </div>
-      <Button title="Finalizar Pedido" />
+      <Button title="Finalizar Pedido" onClick={handleCreateOrder} />
     </div>
   );
 };
