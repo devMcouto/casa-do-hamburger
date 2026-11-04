@@ -23,7 +23,7 @@ export const login = async (req: Request, res: Response) => {
     const match = await bcrypt.compare(password, user?.password);
 
     if (!match) {
-      res.status(401).json({ message: "Usuário não encontrado" });
+      res.status(401).json({ message: "User not found" });
       return;
     }
     const userInfos = {
@@ -35,7 +35,7 @@ export const login = async (req: Request, res: Response) => {
     };
     const secret = process.env.JWT_SECRET;
     if (!secret) {
-      res.status(500).json({ message: "Erro no servidor" });
+      res.status(500).json({ message: "Internal server error" });
       return;
     }
 
@@ -101,14 +101,6 @@ export const auth = async (req: Request, res: Response) => {
 };
 
 export const logout = async (req: Request, res: Response) => {
-  try {
-    const { user } = req.cookies;
-    if (user) {
-      res.clearCookie("user");
-      res.json({ message: "Logout successful" });
-    }
-    console.log(user);
-  } catch (error) {
-    return res.status(500).json({ message: "Internal server error" });
-  }
+  res.clearCookie("user");
+  res.json({ message: "Logout successful" });
 };
