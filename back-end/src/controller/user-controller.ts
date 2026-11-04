@@ -77,6 +77,7 @@ export const register = async (req: Request, res: Response) => {
         password: hash,
         cep: cep,
       },
+      select: { id: true, name: true, email: true, cep: true },
     });
     res.status(201).json(newUser);
   } catch (error) {
