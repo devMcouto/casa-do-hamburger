@@ -33,17 +33,21 @@ export const login = async (req: Request, res: Response) => {
       cep: user.cep,
       admin: user.admin,
     };
-
-    if (!process.env.JWT_SECRET) {
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      res.status(500).json({ message: "Erro no servidor" });
       return;
     }
 
-    const token = jwt.sign(userInfos, process.env.JWT_SECRET);
-
-    console.log(token);
+    const token = jwt.sign(userInfos, secret, {
+      expiresIn: "7d",
+    });
 
     res.cookie("user", token, {
-      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
     });
 
     res.status(200).json(userInfos);
