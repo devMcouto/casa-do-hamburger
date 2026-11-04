@@ -24,6 +24,7 @@ export async function createCartItem(req: Request, res: Response) {
   try {
     if (!productId) {
       res.status(400).json({ message: "ProductId obrigatório" });
+      return;
     }
 
     const existingItem = await prisma.cartItem.findFirst({
