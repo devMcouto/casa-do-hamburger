@@ -23,7 +23,7 @@ export const login = async (req: Request, res: Response) => {
     const match = await bcrypt.compare(password, user?.password);
 
     if (!match) {
-      res.status(401).json({ message: "Usuário não encontrado" });
+      res.status(401).json({ message: "User not found" });
       return;
     }
     const userInfos = {
@@ -33,17 +33,21 @@ export const login = async (req: Request, res: Response) => {
       cep: user.cep,
       admin: user.admin,
     };
-
-    if (!process.env.JWT_SECRET) {
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      res.status(500).json({ message: "Internal server error" });
       return;
     }
 
-    const token = jwt.sign(userInfos, process.env.JWT_SECRET);
-
-    console.log(token);
+    const token = jwt.sign(userInfos, secret, {
+      expiresIn: "7d",
+    });
 
     res.cookie("user", token, {
-      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
     });
 
     res.status(200).json(userInfos);
@@ -77,6 +81,7 @@ export const register = async (req: Request, res: Response) => {
         password: hash,
         cep: cep,
       },
+      select: { id: true, name: true, email: true, cep: true },
     });
     res.status(201).json(newUser);
   } catch (error) {
@@ -96,14 +101,6 @@ export const auth = async (req: Request, res: Response) => {
 };
 
 export const logout = async (req: Request, res: Response) => {
-  try {
-    const { user } = req.cookies;
-    if (user) {
-      res.clearCookie("user");
-      res.json({ message: "Logout successful" });
-    }
-    console.log(user);
-  } catch (error) {
-    return res.status(500).json({ message: "Internal server error" });
-  }
+  res.clearCookie("user");
+  res.json({ message: "Logout successful" });
 };
